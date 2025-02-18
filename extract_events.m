@@ -1,11 +1,5 @@
-function [sleep_stages, staging_info] = extract_events(study, ...
-    model_settings)
+function [sleep_stages, staging_info] = extract_events(events, model_settings)
     tic
-
-    % Setup event handler.
-    event_handler = 'F:\MATLAB\eeg\eegBidsCreator.py';
-    
-    events = qch_event_processor(event_handler, study);
 
     sleep_stages = 0;
     staging_info = struct();
