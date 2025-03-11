@@ -5,7 +5,7 @@ function pipeline_qch(study_list_qch, event_list_qch, archive_name, ...
     qch_data = table();
 
     %for i = 1 : height(study_list_qch)
-    for i = 10 : 29
+    for i = 10 : 19
         % Check if we should include this study. - DISABLED.
         %include = qch_study_exclusions([study_list_qch(i).folder ...
         %    '\' study_list_qch(i).name]);
@@ -42,25 +42,28 @@ function pipeline_qch(study_list_qch, event_list_qch, archive_name, ...
             model_settings);
 
         % Skip studies where unsufficient EEG data for scoring
-        if height(f4) < staging_info.stop * 30 * 128
+        start = staging_info.start * (model_settings.fs * 30) - (model_settings.fs * 30) + 1;
+        stop = staging_info.stop * (model_settings.fs * 30) - (model_settings.fs * 30);
+
+        if height(f4) < stop
             continue;
         end
 
         % Correct length
         f4 = f4(floor(staging_info.discard) + 1 : end, :);
-        f4 = f4(staging_info.start * model_settings.fs * 30 + 1 : staging_info.stop * model_settings.fs * 30, :);
+        f4 = f4(start : stop, :);
         c4 = c4(floor(staging_info.discard) + 1 : end, :);
-        c4 = c4(staging_info.start * model_settings.fs * 30 + 1 : staging_info.stop * model_settings.fs * 30, :);
+        c4 = c4(start : stop, :);
         o2 = o2(floor(staging_info.discard) + 1 : end, :);
-        o2 = o2(staging_info.start * model_settings.fs * 30 + 1 : staging_info.stop * model_settings.fs * 30, :);
+        o2 = o2(start : stop, :);
         loc = loc(floor(staging_info.discard) + 1 : end, :);
-        loc = loc(staging_info.start * model_settings.fs * 30 + 1 : staging_info.stop * model_settings.fs * 30, :);
+        loc = loc(start : stop, :);
         roc = roc(floor(staging_info.discard) + 1 : end, :);
-        roc = roc(staging_info.start * model_settings.fs * 30 + 1 : staging_info.stop * model_settings.fs * 30, :);
+        roc = roc(start : stop, :);
         m1 = m1(floor(staging_info.discard) + 1 : end, :);
-        m1 = m1(staging_info.start * model_settings.fs * 30 + 1 : staging_info.stop * model_settings.fs * 30, :);
+        m1 = m1(start : stop, :);
         m2 = m2(floor(staging_info.discard) + 1 : end, :);
-        m2 = m2(staging_info.start * model_settings.fs * 30 + 1 : staging_info.stop * model_settings.fs * 30, :);
+        m2 = m2(start : stop, :);
 
         % Extract demographics
         [dob, dos, sex, oahi_rem, oahi_nrem, oahi, cahi_rem, cahi_nrem, ...
