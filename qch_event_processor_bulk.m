@@ -18,6 +18,41 @@ function [event_list_qch] = qch_event_processor_bulk( ...
 
     % Iterate through list of tests.
     for i = 1 : length(study_list)
+
+        study_name = [study_list(i).folder '\' study_list(i).name];
+        
+        fileList = dir(study_name);
+
+        % Correct duplicate esedbs.
+        esedbFiles = [];
+    
+        for j = 1 : length(fileList)
+            [~, ~, ext] = fileparts(fileList(j).name);  % Extract the file extension.
+            if strcmpi(ext, '.esedb')  % Check if the file is a .esedb file (case-insensitive).
+                esedbFiles = [esedbFiles; fileList(j)];
+            end
+        end
+    
+        if length(esedbFiles) >= 2
+            for j = 1 : length(esedbFiles)
+                fileName = esedbFiles(j).name;  % Get the name of the current .esedb file
+                
+                % Check if 'dr' (case-insensitive) is NOT present in the file name
+                if isempty(regexpi(fileName(end - 12 : end), 'dr'))
+                    % Rename the file by appending .BACKUP
+                    oldFullPath = fullfile(study_name, fileName);
+                    newFileName = [fileName '.BACKUP'];
+                    newFullPath = fullfile(study_name, newFileName);
+                    
+                    % Rename the file
+                    movefile(oldFullPath, newFullPath);
+                    fprintf('Renamed file: %s -> %s\n', fileName, newFileName);
+                end
+            end
+        else
+            fprintf('Less than 2 .esedb files found, no renaming necessary.\n');
+        end
+
         % Setup command.
         command = ['python "' event_handler '" -t my_task "' ...
             study_list(i).folder '\' study_list(i).name '" -o "' ...
